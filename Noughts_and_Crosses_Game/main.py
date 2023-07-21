@@ -2,7 +2,15 @@ from prettytable import PrettyTable
 
 CROSS = '✗'
 CIRCLE = '○'
+PLAYERS = {"A": CIRCLE, "B": CROSS}
 count = 0
+
+#TODO: create a scoreboard
+#TODO: create a widget to play
+
+
+def init_board() -> list:
+    return [[' '] * 3 for _ in range(3)]
 
 
 def print_board(rows: list) -> None:
@@ -46,11 +54,11 @@ def check_end(rows: list):
     return True
 
 
-def get_position(row=True) -> int:
-    pos = input("Row: ") if row is True else input("Column: ")
+def get_position(is_row=True) -> int:
+    pos = input("Row: ") if is_row is True else input("Column: ")
     if pos not in {'1', '2', '3'}:
         print('You must enter correct numer (1~3).')
-        return get_position(row)
+        return get_position(is_row)
     else:
         return int(pos) - 1
 
@@ -64,26 +72,28 @@ def play_game() -> None:
     else:
         print("Welcome to Tic Tac Toe.")
 
-    rows = [[' '] * 3 for _ in range(3)]
-    turn = CIRCLE
+    rows = init_board()
+    player = "A"
     is_game_on = True
     while is_game_on:
+        turn = PLAYERS[player]
         print_board(rows)
-        print(f"It's your turn ({turn}). Pick a position.")
-        r = get_position(row=True)
-        c = get_position(row=False)
+        print(f"It's player {player}'s turn ({turn}). Pick a position.")
+        r = get_position(is_row=True)
+        c = get_position(is_row=False)
         if rows[r][c] != ' ':
             print("It's not allowed to place here. It's already taken.")
         else:
             rows[r][c] = turn
             if check_win(rows=rows, turn=turn):
-                print(f"You ({turn}) wins!")
+                print(f"Player {player} ({turn}) wins!")
                 is_game_on = False
             elif check_end(rows=rows):
                 print("It's a draw.")
                 is_game_on = False
             else:
-                turn = CROSS if turn == CIRCLE else CIRCLE
+                player = "B" if player == "A" else "A"
+
 
     if input("Continue? (Y/N): ").lower() == 'y':
         count += 1
