@@ -1,8 +1,19 @@
 import pandas
 
-data_df = pandas.read_csv("nato_phonetic_alphabet.csv")
-phonetic_dict = {row.letter: row.code for index, row in data_df.iterrows()}
+DATA_DF = pandas.read_csv("nato_phonetic_alphabet.csv")
+PHONETIC_DICT = {row.letter: row.code for index, row in data_df.iterrows()}
 
-word = input("Enter a word: ").upper()
-print([phonetic_dict[letter] for letter in word])
+def generate_phonetic():
+    word = input("Enter a word: ").upper()
+    try:
+        output_list = [PHONETIC_DICT[letter] for letter in word]
+    except KeyError:
+        print(f"Sorry, only letters in teh alphabet please.")
+    else:
+        print(output_list)
+    finally:
+        generate_phonetic()
 
+
+if __name__ == "__main__":
+    generate_phonetic()
