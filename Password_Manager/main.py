@@ -1,3 +1,4 @@
+import json
 import random
 import string
 from tkinter import *
@@ -22,12 +23,19 @@ def generate_password() -> None:
     password = "".join(password_list)
     password_entry.insert(0, password)
     pyperclip.copy(password)
+    return None
 
 # ---------------------------- SAVE PASSWORD -------------------------- #
-def save():
+def save() -> None:
     website = website_entry.get()
     email = email_entry.get()
     password = password_entry.get()
+    new_data = {
+        website: {
+            "email": email,
+            "password": password
+        }
+    }
 
     if (not website) or (not email) or (not password):
         messagebox.showinfo(
@@ -37,11 +45,44 @@ def save():
         is_ok = messagebox.askokcancel(title=website, message=message)
     
         if is_ok:
-            with open("data.text", mode='a') as f:
-                f.write(f"{website} | {email} | {password}\n")
+            try:
+                with open("data.json", mode='r') as f:
+                    # Reading old data
+                    data = json.load(f)
+            except FileNotFoundError:
+                # Creating a new file
+                with open("data.json", mode='w') as f:
+                    json.dump(new_data, f, indent=4)
+            else:
+                # Updating old data with new data
+                data.update(new_data)
+                
+                with open("data.json", mode='w') as f:
+                    # Saving updated data
+                    json.dump(data, f, indent=4)
+            finally:
                 website_entry.delete(0, END)
                 password_entry.delete(0, END)
+    return None
 
+# ---------------------------- SEARCH PASSWORD ------------------------ #
+def search() -> None:
+    website = website_entry.get()
+    try:
+        with open("data.json", mode='r') as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        messagebox.showinfo(title="Error", message="No Data File Found.")
+    else:
+        if website in data:
+            email = data[website]["email"]
+            password = data[website]["password"]
+            message = f"Email: {email}\nPassword: {password}"
+            messagebox.showinfo(title=website, message=message)
+        else:
+            message = f"No details for {website} exists."
+            messagebox.showinfo(title="Error", message=message)
+    return None
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
@@ -64,8 +105,8 @@ password_label = Label(text="Password:")
 password_label.grid(column=0, row=3)
 
 # Entries
-website_entry = Entry(width=35)
-website_entry.grid(column=1, row=1, columnspan=2)
+website_entry = Entry(width=21)
+website_entry.grid(column=1, row=1)
 website_entry.focus()
 
 email_entry = Entry(width=35)
@@ -76,6 +117,9 @@ password_entry = Entry(width=21)
 password_entry.grid(column=1, row=3)
 
 # Buttons
+search_button = Button(text="Search", width=13, command=search)
+search_button.grid(column=2, row=1)
+
 gen_pw_button = Button(text="Generate Password", command=generate_password)
 gen_pw_button.grid(column=2, row=3)
 
