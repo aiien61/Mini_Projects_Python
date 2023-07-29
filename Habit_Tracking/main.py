@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime
 
-# Make record checking app using website 'Pixela' (https://pixe.la/)
+# Make record tracking app using website 'Pixela' (https://pixe.la/)
 # API document: https://docs.pixe.la/
 
 ## ---------------------- Create user account ---------------------------- ##
