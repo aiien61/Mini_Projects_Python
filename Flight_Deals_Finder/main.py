@@ -3,7 +3,9 @@ from datetime import datetime, timedelta
 
 from data_manager import DataManager
 from flight_search import FlightSearch
+from notification_manager import NotificationManager
 
+notification_manager = NotificationManager()
 flight_search = FlightSearch()
 data_manager = DataManager()
 sheet_data = data_manager.get_destiniation_data()
@@ -30,3 +32,9 @@ for destination in sheet_data:
             "destination_city_code": destination["iataCode"],
         }
     )
+
+    if flight.price < destination["lowestPrice"]:
+        notification_manager.send_sms(
+            message=f"Low price alert! Only £{flight.price} to fly from {flight.departure_city}-{flight.departure_airport_code} to {flight.destination_city}-{flight.destination_airport_code}, from {flight.out_date} to {flight.return_date}."
+        )
+        
