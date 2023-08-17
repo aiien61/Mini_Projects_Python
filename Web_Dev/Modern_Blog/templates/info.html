@@ -1,0 +1,29 @@
+{% include "header.html" %}
+
+        <!-- Page Header-->
+        <header class="masthead" style="background-image: url('https://images.unsplash.com/photo-1614711961675-c589a467042f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=744&q=80')">
+            <div class="container position-relative px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-md-10 col-lg-8 col-xl-7">
+                        <div class="page-heading">
+                            <h1></h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Main Content-->
+        <main class="container">
+            <div class="bg-body-tertiary p-5 rounded">
+                <h1>{{ msg }}</h1>
+                <p class="lead">
+                    Name: {{ data['name'] }}<br>
+                    Email: {{ data['email'] }}<br>
+                    Phone: {{ data['phone'] }}<br>
+                    Message: {{ data['message']}}<br>
+                </p>
+                <a class="btn btn-lg btn-primary" href="{{ url_for('index') }}" role="button">Back home »</a>
+            </div>
+        </main>
+
+{% include "footer.html" %}
