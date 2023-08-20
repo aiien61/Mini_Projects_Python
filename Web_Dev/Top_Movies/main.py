@@ -9,6 +9,7 @@ import requests
 MOVIE_DB_SEARCH_URL = "https://api.themoviedb.org/3/search/movie"
 MOVIE_DB_API_KEY = "YOUR-API-KEY-FROM-TMDB"
 MOVIE_DB_INFO_URL = "https://api.themoviedb.org/3/movie"
+MOVIE_DB_IMG_URL = "https://image.tmdb.org/t/p/w500"
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'GENERATE-YOUR-SECRET-KEY'
@@ -52,15 +53,17 @@ with app.app_context():
 @app.route("/")
 def home():
     with app.app_context():
-        result = db.session.execute(db.select(Movie).order_by(Movie.title))
+        result = db.session.execute(db.select(Movie).order_by(Movie.rating))
         all_movies = result.scalars().all()
-        print(all_movies)
+
+        for i, movie in enumerate(all_movies[::-1], start=1):
+            movie.ranking = i
     return render_template("index.html", all_movies=all_movies)
 
 
 @app.route("/edit", methods=["GET", "POST"])
-def edit():
-    form = FindMovieForm()
+def edit_movie():
+    form = EditMovieForm()
     movie_id = request.args.get("id")
     movie = db.get_or_404(Movie, movie_id)
     if form.validate_on_submit():
@@ -73,7 +76,7 @@ def edit():
 
 
 @app.route("/delete")
-def delete():
+def delete_movie():
     movie_to_delete = db.get_or_404(Movie, request.args.get("id"))
     db.session.delete(movie_to_delete)
     db.session.commit()
@@ -81,7 +84,7 @@ def delete():
 
 
 @app.route("/add", methods=["GET", "POST"])
-def add():
+def add_movie():
     form = FindMovieForm()
     if form.validate_on_submit():
         parameters = {
@@ -90,12 +93,12 @@ def add():
         }
         response = requests.get(MOVIE_DB_SEARCH_URL, params=parameters)
         data = response.json()["results"]
-        print(response.json())
         return render_template('select.html', options=data)
     return render_template('add.html', form=form)
 
-@app.route("/select", methods=["GET", "POST"])
-def find():
+
+@app.route("/find")
+def find_movie():
     movie_id = request.args.get('id')
     if movie_id:
         movie_api_url = f"{MOVIE_DB_INFO_URL}/{movie_id}"
@@ -105,8 +108,15 @@ def find():
         }
         response = requests.get(movie_api_url, params=parameters)
         data = response.json()
-        print(data)
-        return redirect(url_for('home'))
+        new_movie = Movie(
+            title=data["original_title"],
+            year=int(data["release_date"].split('-')[0]),
+            description=data["overview"],
+            img_url=f"{MOVIE_DB_IMG_URL}{data['poster_path']}"
+        )
+        db.session.add(new_movie)
+        db.session.commit()
+        return redirect(url_for('edit_movie', id=new_movie.id))
 
 
 if __name__ == '__main__':
