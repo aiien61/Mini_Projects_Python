@@ -11,6 +11,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cafes.db'
 db = SQLAlchemy()
 db.init_app(app)
 
+ERROR_MESSAGES: dict = {
+    400: {"Bad Request": "Sorry, the provided price format is not correct."},
+    403: {"Forbidden": "Sorry, that's not allowed. Make sure you have the correct api_key."},
+    404: {"Not Found": "Sorry, a cafe with that id was not found in the database."}
+}
+
 
 ## Cafe TABLE Configuration
 class Cafe(db.Model):
@@ -96,19 +102,15 @@ def post_cafe():
 ## HTTP PUT/PATCH - Update Record
 @app.route("/update-price/<int:cafe_id>", methods=["PATCH"])
 def update_price(cafe_id: int):
-    err_msg = {
-        "400": {"Bad Request": "Sorry the provided price format is not correct."},
-        "404": {"Not Found": "Sorry a cafe with that id was not found in the database."}
-    }
 
     def validate_price_format(value: str):
         if value[0] not in {'£', '$'}:
-            raise ValueError("400")
+            raise ValueError(400)
         
         if isinstance(float(value[1:]), float):
             return True
         else:
-            raise ValueError("400")
+            raise ValueError(400)
 
     try:
         validate_price_format(request.args.get("new_price"))
@@ -117,15 +119,27 @@ def update_price(cafe_id: int):
             cafe_to_update.coffee_price = request.args.get("new_price")
             db.session.commit()
         else:
-            raise ValueError("404")
+            raise ValueError(404)
 
     except ValueError as err_code:
-        return jsonify(error=err_msg.get(str(err_code)))
+        return jsonify(error=ERROR_MESSAGES.get(int(err_code)))
     else:
         return jsonify(response={"success": "Successfully updated the price"})
 
 
 ## HTTP DELETE - Delete Record
+@app.route("/report-closed/<int:cafe_id>", methods=["DELETE"])
+def delete_cafe(cafe_id: int):
+    if request.args.get("api-key") != "TopSecretAPIKey":
+        return jsonify(error=ERROR_MESSAGES.get(403))
+    
+    cafe_to_delete = db.session.get(Cafe, cafe_id)
+    if cafe_to_delete:
+        db.session.delete(cafe_to_delete)
+        db.session.commit()
+        return jsonify(response={"success": "Successfully delete the cafe"})
+    else:
+        return jsonify(error=ERROR_MESSAGES.get(404))
 
 
 if __name__ == '__main__':
