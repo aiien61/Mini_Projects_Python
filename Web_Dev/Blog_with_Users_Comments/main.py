@@ -26,42 +26,53 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
 db = SQLAlchemy()
 db.init_app(app)
 
+gravatar = Gravatar(app,
+                    size=100,
+                    rating='g',
+                    default='retro',
+                    force_default=False,
+                    force_lower=False,
+                    use_ssl=False,
+                    base_url=None)
+
 
 # CONFIGURE TABLES
 class User(UserMixin, db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
-    posts = relationship("BlogPost", back_populates="author")
-    comments = relationship("Comment", back_populates="comment_author")
-
     email = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
     name = db.Column(db.String(250), nullable=False)
+
+    posts = relationship("BlogPost", back_populates="author")
+    comments = relationship("Comment", back_populates="author")
 
 
 class BlogPost(db.Model):
     __tablename__ = "posts"
     id = db.Column(db.Integer, primary_key=True)
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    author = relationship("User", back_populates="posts")
-
     title = db.Column(db.String(250), unique=True, nullable=False)
     subtitle = db.Column(db.String(250), nullable=False)
     date = db.Column(db.String(250), nullable=False)
     body = db.Column(db.Text, nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
 
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    author = relationship("User", back_populates="posts")
+    
+    comments = relationship("Comment", back_populates="post")
+
 
 class Comment(db.Model):
     __tablename__ = "comments"
     id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String, nullable=False)
+
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    comment_author = relationship("User", back_populates="comments")
+    author = relationship("User", back_populates="comments")
 
     post_id = db.Column(db.Integer, db.ForeignKey("posts.id"))
     post = relationship("BlogPost", back_populates="comments")
-
-    text = db.Column(db.String, nullable=False)
 
 
 with app.app_context():
@@ -76,7 +87,8 @@ def load_user(user_id: int):
 def admin_only(f):
     @wraps(f)
     def wrapper_function(*args, **kwargs):
-        if current_user.id != 1:
+        post = db.get_or_404(BlogPost, kwargs.get("post_id"))
+        if current_user.id != post.author.id:
             return abort(403)
         else:
             return f(*args, **kwargs)
@@ -149,10 +161,23 @@ def get_all_posts():
     return render_template("index.html", all_posts=posts)
 
 
-@app.route("/post/<int:post_id>")
-def show_post(post_id):
+@app.route("/post/<int:post_id>", methods=["GET", "POST"])
+def show_post(post_id: int):
     requested_post = db.get_or_404(BlogPost, post_id)
     form = CommentForm()
+    if form.validate_on_submit():
+        if not current_user.is_authenticated:
+            flash("You need to login or register to comment.")
+            return redirect(url_for("login"))
+        
+        new_comment = Comment(
+            text=form.comment_text.data,
+            author_id=current_user.id,
+            post_id=requested_post.id
+        )
+
+        db.session.add(new_comment)
+        db.session.commit()
     return render_template("post.html", post=requested_post, current_user=current_user, form=form)
 
 
@@ -176,7 +201,7 @@ def add_new_post():
 
 @app.route("/edit-post/<int:post_id>", methods=["GET", "POST"])
 @admin_only
-def edit_post(post_id):
+def edit_post(post_id: int):
     post = db.get_or_404(BlogPost, post_id)
     edit_form = CreatePostForm(
         title=post.title,
@@ -198,7 +223,7 @@ def edit_post(post_id):
 
 @app.route("/delete/<int:post_id>")
 @admin_only
-def delete_post(post_id):
+def delete_post(post_id: int):
     post_to_delete = db.get_or_404(BlogPost, post_id)
     db.session.delete(post_to_delete)
     db.session.commit()
