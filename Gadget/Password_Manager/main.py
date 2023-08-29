@@ -109,7 +109,7 @@ website_entry = Entry(width=21)
 website_entry.grid(column=1, row=1)
 website_entry.focus()
 
-email_entry = Entry(width=35)
+email_entry = Entry(width=38)
 email_entry.grid(column=1, row=2, columnspan=2)
 email_entry.insert(0, 'example@gmail.com')
 

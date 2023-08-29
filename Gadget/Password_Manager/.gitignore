@@ -1,0 +1,8 @@
+# virtual environment
+.venv
+
+# settings
+.vscode
+
+# data 
+data.json
