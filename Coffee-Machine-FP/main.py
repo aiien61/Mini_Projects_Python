@@ -24,7 +24,7 @@ def process_coins() -> float:
 
 def is_transaction_successful(money_received: float,
                               drink_cost: float,
-                              profit: float) -> bool:
+                              profit_holder: list) -> bool:
     """Returns True when the payment is accepted, or False if money is 
     insufficient.
     """
@@ -32,7 +32,7 @@ def is_transaction_successful(money_received: float,
         change = round(money_received - drink_cost, 2)
         print(f"Here is ${change} in change.")
 
-        profit += drink_cost
+        profit_holder[0] += drink_cost
         return True
     else:
         print("Sorry that's not enough money. Money refunded.")
@@ -47,7 +47,7 @@ def make_coffee(drink_name: str, order_ingredients: dict) -> None:
     
 
 def coffee_machine():
-    profit = 0
+    profit_holder = [0]
     is_on = True
     while is_on:
         choice = input("What would you like? (espresso/latte/cappuccino): ")
@@ -57,12 +57,12 @@ def coffee_machine():
             print(f"Water: {resources['water']}ml.")
             print(f"Milk: {resources['milk']}ml")
             print(f"Coffee: {resources['coffee']}g")
-            print(f"Money: ${profit}")
+            print(f"Money: ${profit_holder[0]}")
         else:
             drink = MENU[choice]
             if is_resource_sufficient(drink['ingredients']):
                 payment = process_coins()
-                if is_transaction_successful(payment, drink['cost'], profit):
+                if is_transaction_successful(payment, drink['cost'], profit_holder):
                     make_coffee(choice, drink['ingredients'])
 
 coffee_machine()
