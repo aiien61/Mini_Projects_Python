@@ -9,7 +9,7 @@ def main():
     is_on = True
     while is_on:
         options = Menu().get_items()
-        choice = input(f"What would you like? ({options}) ").lower()
+        choice = input(f"What would you like? ({options}): ").lower()
         if choice == "off":
             is_on = False
         elif choice == "report":
