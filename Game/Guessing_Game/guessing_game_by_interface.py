@@ -34,7 +34,6 @@ class Game:
             self.turns -= 1
             return guess
         
-    
     def check_answer(self, guess: int) -> bool:
         if guess < self.answer:
             print(colored(f'Too Low', color='blue'))
@@ -54,7 +53,6 @@ class Game:
         self.set_difficulty(level)
         return None
 
-        
     def play(self) -> None:
         self.show_attempts()
         guess: int = self.make_a_guess()
