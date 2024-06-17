@@ -58,7 +58,7 @@ class Game:
         guess: int = self.make_a_guess()
         while not self.check_answer(guess):
             if self.turns == 0:
-                print(colored(f'You lose!', color='yellow'))
+                print(colored(f'Psst, the correct answer is {self.answer}', color='yellow'))
                 break
             print('Guess again.')
             self.show_attempts()
