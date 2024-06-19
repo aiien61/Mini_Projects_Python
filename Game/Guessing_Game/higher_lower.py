@@ -48,7 +48,7 @@ while game_should_continue:
 
     print(f"Compare A: {format_data(account_a)}.")
     print(logo_vs)
-    print(f"Against B: {format_data(account_a)}.")
+    print(f"Against B: {format_data(account_b)}.")
     # Ask user for a guess
     guess = input("Who has more followers? Type 'A' or 'B': ").lower()
 
