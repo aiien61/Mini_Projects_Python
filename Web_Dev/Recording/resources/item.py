@@ -1,14 +1,18 @@
 import uuid  # auto generate id serial number
 import logging
+
 from flask import request
 from flask.views import MethodView
 from flask_smorest import abort, Blueprint
+
 from db import items,stores
+from schemas import ItemSchema, ItemUpdateSchema
 
 blp = Blueprint('Items', __name__, description='Operations on items')
 
 @blp.route('/item/<string:item_id>')
 class Item(MethodView):
+    @blp.response(200, ItemSchema)
     def get(self, item_id: str):
         try:
             return items[item_id]
@@ -24,11 +28,9 @@ class Item(MethodView):
             logging.debug(e)
             abort(404, message='Item not found.')
 
-    def put(self, item_id: str):
-        item_data = request.get_json()
-        if 'price' not in item_data or 'name' not in item_data:
-            abort(400, message="Bad request. Ensure 'price' and 'name' are included in the JSON payload.")
-
+    @blp.arguments(ItemUpdateSchema)
+    @blp.response(200, ItemSchema)
+    def put(self, item_id: str, item_data: dict):
         try:
             item: dict = items[item_id]
         except KeyError as e:
@@ -41,20 +43,12 @@ class Item(MethodView):
 
 @blp.route('/item')
 class ItemList(MethodView):
-    def get(self): return {'items': list(items.values())}
+    @blp.response(200, ItemSchema(many=True))
+    def get(self): return items.values()
 
-    def post(self):
-        item_data = request.get_json()
-        if (
-            'price' not in item_data
-            or 'store_id' not in item_data
-            or 'name' not in item_data
-        ):
-            abort(
-                400,
-                message="Bad request. Ensure 'price', 'store_id', and 'name' are included in the JSON payload."
-            )
-
+    @blp.arguments(ItemSchema)
+    @blp.response(201, ItemSchema)
+    def post(self, item_data: dict):
         for item in items.values():
             if (
                 item['name'] == item['name']
