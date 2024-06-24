@@ -1,1 +1,2 @@
 replit==4.0.0
+colorgram.py==1.2.0
