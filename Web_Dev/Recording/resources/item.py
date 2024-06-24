@@ -16,37 +16,37 @@ blp = Blueprint('Items', __name__, description='Operations on items')
 class Item(MethodView):
     @blp.response(200, ItemSchema)
     def get(self, item_id: str):
-        try:
-            return items[item_id]
-        except KeyError as e:
-            logging.debug(e)
-            abort(404, message='Item not found.')
+        item = ItemModel.query.get_or_404(item_id)
+        return item
 
     def delete(self, item_id: str):
-        try:
-            del items[item_id]
-            return {'message': "Item deleted."}
-        except KeyError as e:
-            logging.debug(e)
-            abort(404, message='Item not found.')
+        item = ItemModel.query.get_or_404(item_id)
+        db.session.delete(item)
+        db.session.commit()
+        return {"message": "Item deleted."}
 
+    # TODO: fails to update item
     @blp.arguments(ItemUpdateSchema)
     @blp.response(200, ItemSchema)
     def put(self, item_id: str, item_data: dict):
-        try:
-            item: dict = items[item_id]
-        except KeyError as e:
-            logging.debug(e)
-            abort(404, message='Item not found.')
+        item = ItemModel.query.get(item_id)
+        if item:
+            item.price = item_data['price']
+            item.name = item_data['name']
         else:
-            item |= item_data
-            return item
+            item = ItemModel(id=item_id, **item_data)
+
+        db.session.add(item)
+        db.session.commit()
+
+        return item
 
 
 @blp.route('/item')
 class ItemList(MethodView):
     @blp.response(200, ItemSchema(many=True))
-    def get(self): return items.values()
+    def get(self):
+        return ItemModel.query.all()
 
     @blp.arguments(ItemSchema)
     @blp.response(201, ItemSchema)

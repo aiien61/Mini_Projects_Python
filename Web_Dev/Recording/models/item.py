@@ -1,6 +1,8 @@
 from db import db
 
 class ItemModel(db.Model):
+    """Define table schema and relationship between other tables for item table."""
+
     __tablename__ = 'items'
 
     id = db.Column(db.Integer, primary_key=True)
