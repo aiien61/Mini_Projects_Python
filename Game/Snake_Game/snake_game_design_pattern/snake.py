@@ -25,6 +25,10 @@ class Snake:
         new_part.goto(position)
         self.body_parts.append(new_part)
         return None
+    
+    def grow(self) -> None:
+        self.add_part(self.body_parts[-1].position())
+        return None
 
     def move(self) -> None:
         for part_index in range(len(self.body_parts) - 1, 0, -1):
@@ -54,3 +58,5 @@ class Snake:
         if self.head.heading() != self.LEFT:
             self.head.setheading(self.RIGHT)
         return None
+    
+    
