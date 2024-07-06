@@ -59,4 +59,12 @@ class Snake:
             self.head.setheading(self.RIGHT)
         return None
     
+    def reset(self) -> None:
+        for part in self.body_parts:
+            part.goto(1000, 1000)
+        self.body_parts.clear()
+        self.create_snake()
+        self.head = self.body_parts[0]
+        return None
+    
     

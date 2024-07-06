@@ -5,7 +5,8 @@ from food import Food
 from scoreboard import Scoreboard
 
 class SnakeGame:
-    screen = Screen()
+    screen: Screen = Screen()
+    game_is_on: bool = True
 
     def __init__(self, window_width: int, window_height: int, background_color: str, title: str):
         self.width: int = window_width
@@ -15,6 +16,7 @@ class SnakeGame:
 
 
     def config(self):
+        self.screen.listen()
         self.screen.setup(width=self.width, height=self.height)
         self.screen.bgcolor(self.bg_color)
         self.screen.title(self.title)
@@ -22,13 +24,26 @@ class SnakeGame:
 
     def create_snake(self):
         snake: Snake = Snake()
-        self.screen.listen()
         self.screen.onkey(snake.up, "Up")
         self.screen.onkey(snake.down, "Down")
         self.screen.onkey(snake.left, "Left")
         self.screen.onkey(snake.right, "Right")
         return snake
     
+    def create_scoreboard(self):
+        def game_over():
+            scoreboard.game_over()
+            self.game_is_on = False
+            return None
+
+        scoreboard: Scoreboard = Scoreboard()        
+        self.screen.onkey(game_over, "Escape")
+        return scoreboard
+    
+    def create_food(self):
+        food: Food = Food()
+        return food
+
     def snake_eats_food(self, snake: Snake, food: Food):
         return True if snake.head.distance(food) < 15 else False
     
@@ -47,11 +62,11 @@ class SnakeGame:
 
     def play(self):
         self.config()
-        scoreboard: Scoreboard = Scoreboard()
+        scoreboard: Scoreboard = self.create_scoreboard()
         snake: Snake = self.create_snake()
-        food: Food = Food()
-        game_is_on: bool = True
-        while game_is_on:
+        food: Food = self.create_food()
+        
+        while self.game_is_on:
             self.screen.update()
             time.sleep(0.1)
             snake.move()
@@ -64,13 +79,13 @@ class SnakeGame:
 
             # detect if snake collides with the wall
             if self.collides_with_walls(snake):
-                game_is_on = False
-                scoreboard.game_over()
+                scoreboard.reset()
+                snake.reset()
 
             # detect if snake collides with itself
             if self.collides_with_itself(snake):
-                game_is_on = False
-                scoreboard.game_over()
+                scoreboard.reset()
+                snake.reset()
 
         self.screen.exitonclick()
         return None
