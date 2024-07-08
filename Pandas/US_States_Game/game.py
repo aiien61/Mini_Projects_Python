@@ -3,6 +3,7 @@ import turtle
 import pandas as pd
 from pathlib import Path
 from typing import Set, List
+from multiprocessing import Pool
 
 IMAGE = "blank_states_img.gif"
 
@@ -51,8 +52,8 @@ class Game:
         all_states: Set[str] = set(self.data.state.to_list())
         missing_states: Set[str] = set(self.missing_states)
         if len(missing_states) != len(all_states):
-            guessed_states: Set[str] = all_states.difference_update(missing_states)
-            for state in guessed_states:
+            all_states.difference_update(missing_states)
+            for state in all_states:
                 self.write_down_state_name(state)
 
         while missing_states:
@@ -65,6 +66,5 @@ class Game:
             if answer_state in missing_states:
                 missing_states.remove(answer_state)
                 self.write_down_state_name(answer_state)
-                self.guessed_states.append(answer_state)
 
         self.screen.mainloop()
