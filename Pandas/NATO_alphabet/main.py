@@ -1,7 +1,7 @@
 import pandas
 
 DATA_DF = pandas.read_csv("nato_phonetic_alphabet.csv")
-PHONETIC_DICT = {row.letter: row.code for index, row in data_df.iterrows()}
+PHONETIC_DICT = {row.letter: row.code for index, row in DATA_DF.iterrows()}
 
 def generate_phonetic():
     word = input("Enter a word: ").upper()
