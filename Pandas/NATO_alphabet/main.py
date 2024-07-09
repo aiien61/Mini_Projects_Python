@@ -8,7 +8,7 @@ def generate_phonetic():
     try:
         output_list = [PHONETIC_DICT[letter] for letter in word]
     except KeyError:
-        print(f"Sorry, only letters in teh alphabet please.")
+        print(f"Sorry, only letters in the alphabet please.")
     else:
         print(output_list)
     finally:
