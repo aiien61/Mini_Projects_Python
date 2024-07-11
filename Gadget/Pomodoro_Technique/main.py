@@ -66,10 +66,12 @@ canvas.create_image(100, 112, image=tomato_img)
 timer_text = canvas.create_text(100, 130, text="00:00", fill="white", font=(FONT_NAME, 35, "bold"))
 canvas.grid(column=1, row=1)
 
-start_button = Button(text="Start", highlightthickness=0, command=start_timer)
+start_button = Button(text="Start", command=start_timer)
+start_button.config(highlightthickness=0, highlightbackground=YELLOW)
 start_button.grid(column=0, row=2)
 
-reset_button = Button(text="Reset", highlightthickness=0, command=reset_timer)
+reset_button = Button(text="Reset", command=reset_timer)
+reset_button.config(highlightthickness=0, highlightbackground=YELLOW)
 reset_button.grid(column=2, row=2)
 
 check_marks = Label(fg=GREEN, bg=YELLOW)
