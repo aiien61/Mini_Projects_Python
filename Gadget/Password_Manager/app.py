@@ -1,5 +1,4 @@
 import pyperclip
-import json
 import string
 from tkinter import *
 from tkinter import messagebox
