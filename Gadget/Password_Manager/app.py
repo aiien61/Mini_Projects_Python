@@ -1,7 +1,6 @@
 import pyperclip
 import json
 import string
-import pandas as pd
 from tkinter import *
 from tkinter import messagebox
 from random import randint, choice, shuffle
