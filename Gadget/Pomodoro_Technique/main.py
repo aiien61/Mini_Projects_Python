@@ -50,7 +50,7 @@ def count_down(count):
         work_seesions = reps // 2
         for _ in range(work_seesions):
             mark += "✔"
-        check_marks.config(text=marks)
+        check_marks.config(text=mark)
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
