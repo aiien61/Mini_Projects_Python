@@ -1,9 +1,10 @@
+import json
 import pyperclip
 import string
 from tkinter import *
 from tkinter import messagebox
 from random import randint, choice, shuffle
-from typing import List
+from typing import List, Iterable
 
 class PasswordManager:
     def __init__(self):
@@ -17,12 +18,13 @@ class PasswordManager:
         self.email_label: Label = Label(text="Email/Username:")
         self.password_label: Label = Label(text="Password:")
         
-        self.website_entry = Entry(width=38)
-        self.email_entry = Entry(width=38)
-        self.password_entry = Entry(width=21)
+        self.website_entry: Entry = Entry(width=21)
+        self.email_entry: Entry = Entry(width=38)
+        self.password_entry: Entry = Entry(width=21)
 
-        self.generate_button = Button(text="Generate Password", command=self.generate_password)
-        self.add_button = Button(text="Add", width=36, command=self.save)
+        self.generate_button: Button = Button(text="Generate", width=13, command=self.generate_password)
+        self.add_button: Button = Button(text="Add", width=36, command=self.save)
+        self.search_button: Button = Button(text="Search", width=13, command=self.search)
         
     
     def setup(self):
@@ -37,18 +39,19 @@ class PasswordManager:
         self.email_label.grid(row=2, column=0)
         self.password_label.grid(row=3, column=0)
 
-        self.website_entry.grid(row=1, column=1, columnspan=2)
+        self.website_entry.grid(row=1, column=1)
         self.email_entry.grid(row=2, column=1, columnspan=2)
         self.password_entry.grid(row=3, column=1)
 
         self.generate_button.grid(row=3, column=2)
         self.add_button.grid(row=4, column=1, columnspan=2)
+        self.search_button.grid(row=1, column=2)
 
     
     def generate_password(self) -> bool:
-        letters = string.ascii_letters
-        numbers = list(map(str, range(10)))
-        symbols = string.punctuation
+        letters: Iterable[str] = string.ascii_letters
+        numbers: List[str] = list(map(str, range(10)))
+        symbols: Iterable[str] = string.punctuation
 
         password_letters: List[str] = [choice(letters) for _ in range(randint(8, 10))]
         password_symbols: List[str] = [choice(symbols) for _ in range(randint(2, 4))]
@@ -62,27 +65,85 @@ class PasswordManager:
         pyperclip.copy(password)
         return True
 
+
+    def search(self):
+        website: str = self.website_entry.get().lower()
+        try:
+            data: dict = self.load_data(filename='data.json')
+            website_data: dict = data[website]
+            title: str = website
+        except FileNotFoundError:
+            title: str = "Error"
+            message: str = "No Data File Found."
+        except KeyError:
+            title: str = "Error"
+            message: str = f"No details for {website} exists."
+        else:
+            email: str = website_data['email']
+            password: str = website_data['password']
+            message: str = f"Email: {email}\nPassword: {password}"
+        finally:
+            messagebox.showinfo(title=title, message=message)
+        
+
     def save(self) -> bool:
-        website: str = self.website_entry.get()
+        website: str = self.website_entry.get().lower()
         email: str = self.email_entry.get()
         password: str = self.password_entry.get()
+        
+        new_data: dict = {
+            website: {
+                'email': email,
+                'password': password
+            }
+        }
 
         if len(website) == 0 or len(password) == 0:
             messagebox.showinfo(title="Oops", message="Please don't leave any fields empty!")
         else:
-            message: str = f"Email: {email} \nPassword: {password} \nIs it ok to save?"
-            is_ok: bool = messagebox.askokcancel(title=website, message=message)
-            if is_ok:
-                with open('data.txt', 'a') as file:
-                    file.write(f"{website} | {email} | {password}\n")
-                    self.website_entry.delete(0, END)
-                    self.password_entry.delete(0, END)
+            try:
+                # Reading old data
+                data: dict = self.load_data(filename='data.json')
+            
+            except FileNotFoundError:
+                # Creating a new file
+                self.create_data(filename='data.json', data=new_data)
+            
+            else:
+                # Updating old data with new data
+                data.update(new_data)
+
+                # Saving updated data
+                self.write_to_file(filename='data.json', data=data)
+            
+            finally:
+                self.website_entry.delete(0, END)
+                self.password_entry.delete(0, END)
         return True
-        
+    
+
+    def load_data(self, filename: str) -> dict:
+        with open(filename, 'r') as file:
+            return json.load(file)
+
+
+    def create_data(self, filename: str, data: dict) -> None:
+        with open(filename, 'w') as file:
+            json.dump(data, file, indent=4)
+        return None
+
+
+    def write_to_file(self, filename: str, data: dict) -> None:
+        with open(filename, 'w') as file:
+            json.dump(data, file, indent=4)
+        return None
+
+
     def run(self):
         self.setup()
         self.layout()
         self.window.mainloop()
+
 
 if __name__ == "__main__":
     app = PasswordManager()
