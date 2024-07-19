@@ -1,3 +1,4 @@
 replit==4.0.0
 colorgram.py==1.2.0
 pandas==2.2.2
+requests==2.32.3
