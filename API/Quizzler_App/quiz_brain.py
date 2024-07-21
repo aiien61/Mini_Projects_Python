@@ -1,4 +1,5 @@
 import html
+from typing import Tuple
 from question_model import LinkedList, Answer, QuestionNode
 
 
@@ -8,13 +9,13 @@ class QuizBrain:
         self.score: int = 0
         self.question_list: LinkedList = question_list
 
-    def next_question(self) -> None:
+    def next_question(self) -> Tuple[str, Answer]:
         self.question_number += 1
         current_question: QuestionNode = self.question_list.pop_first()
         question_text: str = html.unescape(current_question.text)
-        user_answer: str = input(f"Q.{self.question_number}: {question_text} (True/False): ")
-        self.check_answer(user_answer, current_question.answer)
-        return None
+        # user_answer: str = input(f"Q.{self.question_number}: {question_text} (True/False): ")
+        # self.check_answer(user_answer, current_question.answer)
+        return f"Q.{self.question_number}: {question_text}", current_question.answer
 
     def still_has_question(self) -> bool:
         return False if self.question_list.length == 0 else True
@@ -23,8 +24,8 @@ class QuizBrain:
         user_answer = Answer.TRUE if user_answer.lower() == 'true' else Answer.FALSE
         if user_answer == correct_answer:
             self.score += 1
-            print('You got it right!')
+            return True
         else:
-            print("That's wrong.")
-        print(f"The correct answer was: {correct_answer.name}")
-        print(f"Your current score is: {self.score}/{self.question_number}\n")
+            return False
+        # print(f"The correct answer was: {correct_answer.name}")
+        # print(f"Your current score is: {self.score}/{self.question_number}\n")
