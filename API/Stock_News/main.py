@@ -36,10 +36,10 @@ yesterday_closing_price = yesterday_data['4. close']
 
 # 2. - Get the day before yesterday's closing stock price
 day_before_yesterday_data = data_list[1]
-day_before_yyesterday_closing_price = day_before_yesterday_data['4. close']
+day_before_yesterday_closing_price = day_before_yesterday_data['4. close']
 
 # 3. - Find the difference between 1 and 2.
-difference = float(yesterday_closing_price) - float(day_before_yyesterday_closing_price)
+difference = float(yesterday_closing_price) - float(day_before_yesterday_closing_price)
 up_down = "🔺" if difference > 0 else "🔻"
 
 # 4. - Work out the percentage difference in price between closing price yesterday and closing price the day before yesterday.
