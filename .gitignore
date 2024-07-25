@@ -1,3 +1,6 @@
 .venv
 __pycache__/
 words_to_learn.csv
+pixela.txt
+mylog.log
+pixel_db.json
