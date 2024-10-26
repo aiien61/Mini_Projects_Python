@@ -5,3 +5,6 @@ __pycache__/
 *.log
 *.json
 .env
+My_Personal_Site/
+Resume/
+NameCard/
