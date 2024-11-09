@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Cafe</title>
+</head>
+<body>
+    <form action="{{ url_for('add_new_cafe') }}" method="post">
+        <p>
+            <label>Name of Cafe:</label>
+            <input type="text" name="name">
+        </p>
+        <p>
+            <label>Google Map URL Link:</label>
+            <input type="text" name="map_url">
+        </p>
+        <p>
+            <label>Cafe Image URL Link:</label>
+            <input type="text" name="img_url">
+        </p>
+        <p>
+            <label>Location:</label>
+            <input type="text" name="location">
+        </p>
+        <p>
+            <label>How many seats:</label>
+            <input type="text" name="seats">
+        </p>
+        <p>
+            <label>Has toilet:</label>
+            <input type="text" name="has_toilet">
+        </p>
+        <p>
+            <label>Has WIFI:</label>
+            <input type="text" name="has_wifi">
+        </p>
+        <p>
+            <label>Has sockets:</label>
+            <input type="text" name="has_sockets">
+        </p>
+        <p>
+            <label>Can take calls:</label>
+            <input type="text" name="can_take_calls">
+        </p>
+        <p>
+            <label>Coffee Price:</label>
+            <input type="text" name="coffee_price">
+        </p>
+        <button type="submit">Add</button>
+    </form>
+</body>
+</html>
