@@ -95,6 +95,21 @@ def admin_only(func):
         return func(*args, **kwargs)
     return wrapper
 
+def commenter_only(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not current_user.is_authenticated:
+            abort(403)
+
+        result = db.session.execute(db.select(Comment).where(Comment.author_id == current_user.id))
+        user = result.scalar()
+        if user.id != current_user.id:
+            abort(403)
+        
+        return func(*args, **kwargs)
+    return wrapper
+
+
 with app.app_context():
     db.create_all()
 
@@ -156,7 +171,7 @@ def get_all_posts():
     posts = result.scalars().all()
     return render_template("index.html", all_posts=posts, current_user=current_user)
 
-# TODO: only allow comment authors to delete the comments
+
 @app.route("/post/<int:post_id>", methods=["GET", "POST"])
 def show_post(post_id: int):
     requested_post = db.get_or_404(BlogPost, post_id)
@@ -222,12 +237,20 @@ def edit_post(post_id):
 
 @app.route("/delete/<int:post_id>")
 @admin_only
-def delete_post(post_id):
+def delete_post(post_id: int):
     post_to_delete = db.get_or_404(BlogPost, post_id)
     db.session.delete(post_to_delete)
     db.session.commit()
     return redirect(url_for('get_all_posts'))
 
+
+@app.route("/delete/comment/<int:post_id>/<int:comment_id>")
+@commenter_only
+def delete_comment(post_id: int, comment_id: int):
+    comment_to_delete = db.get_or_404(Comment, comment_id)
+    db.session.delete(comment_to_delete)
+    db.session.commit()
+    return redirect(url_for('show_post', post_id=post_id))
 
 @app.route("/about")
 def about():
